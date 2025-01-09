@@ -1,0 +1,57 @@
+name: Setup React Runtime Tests
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # https://crontab.guru/#5_*/1_*_*_*
+    - cron: "5 */1 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  setup:
+    runs-on: devzero-ubuntu-24.04
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+
+      - name: Install yq
+        run: |
+          if ! command -v yq &> /dev/null; then
+            sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+            sudo chmod a+x /usr/local/bin/yq
+          fi
+
+      - name: Clone React repo
+        run: |
+          git clone https://github.com/facebook/react.git temp-react --depth=1
+          
+      - name: Copy workflow file
+        run: |
+          mkdir -p .github/workflows/
+          cp temp-react/.github/workflows/runtime_build_and_test.yml .github/workflows/benchmark.yml
+
+      - name: Modify workflow file with yq
+        run: |
+          # Set the cron schedule
+          yq -i '.on = {"workflow_dispatch": {}, "schedule": [{"cron": "15 */12 * * *"}]}' .github/workflows/benchmark.yml
+
+          # Change all instances of ubuntu-latest to ubuntu-24.04 and add matrix
+          yq -i '(.jobs.* | select(.runs-on == "ubuntu-latest")) *= {"strategy": {"matrix": {"runner": ["ubuntu-24.04", "devzero-ubuntu-24.04"]}}, "runs-on": "${{ matrix.runner }}"}' .github/workflows/benchmark.yml
+          
+          # Add repository field to all checkout actions
+          yq -i '(.jobs.*.steps.[] | select(.uses == "actions/checkout@v4").with.repository) = "facebook/react"' .github/workflows/benchmark.yml
+          yq -i '(.jobs.*.steps.[] | select(.uses == "actions/checkout@v4").with.ref) = "main"' .github/workflows/benchmark.yml
+
+      - name: Cleanup temp files
+        run: rm -rf temp-react
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git pull  # Add this line to sync with remote
+          git add .github/workflows/benchmark.yml
+          git commit -m "Setup React runtime tests workflow" || echo "No changes to commit"
+          git push
