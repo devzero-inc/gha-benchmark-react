@@ -6,8 +6,7 @@ on:
     # https://crontab.guru/#5_*/1_*_*_*
     - cron: "5 */1 * * *"
 
-permissions:
-  contents: write
+permissions: write-all
 
 jobs:
   setup:
