@@ -47,10 +47,12 @@ jobs:
         run: rm -rf temp-react
 
       - name: Commit changes
+        env:
+          GH_TOKEN: ${{ secrets.GHA_BENCHMARK }}
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git pull  # Add this line to sync with remote
+          git config --local user.email "dray92@uw.edu"
+          git config --local user.name "debot"
+          git pull --rebase origin main
           git add .github/workflows/benchmark.yml
           git commit -m "Setup React runtime tests workflow" || echo "No changes to commit"
-          git push
+          git push https://${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
