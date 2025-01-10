@@ -35,15 +35,18 @@ jobs:
 
       - name: Modify workflow file with yq
         run: |
-          # Set the cron schedule
-          yq -i '.on = {"workflow_dispatch": {}, "schedule": [{"cron": "15 */12 * * *"}]}' .github/workflows/benchmark.yml
-
-          # Change all instances of ubuntu-latest to ubuntu-24.04 and add matrix
-          yq -i '(.jobs.* | select(.runs-on == "ubuntu-latest")) *= {"strategy": {"matrix": {"runner": ["ubuntu-24.04", "devzero-ubuntu-24.04"]}}, "runs-on": "${{ matrix.runner }}"}' .github/workflows/benchmark.yml
+          # Add runner matrix to all jobs that don't already have a matrix
+          yq -P -i '(.jobs.* | select(.strategy == null)).strategy.matrix.runner = ["ubuntu-24.04", "devzero-ubuntu-24.04"]' .github/workflows/benchmark.yml
+          
+          # Add runner to existing matrices
+          yq -P -i '(.jobs.* | select(.strategy != null)).strategy.matrix.runner = ["ubuntu-24.04", "devzero-ubuntu-24.04"]' .github/workflows/benchmark.yml
+          
+          # Set runs-on to use matrix runner
+          yq -P -i '.jobs.*.runs-on = "${{ matrix.runner }}"' .github/workflows/benchmark.yml
           
           # Add repository field to all checkout actions
-          yq -i '(.jobs.*.steps.[] | select(.uses == "actions/checkout@v4").with.repository) = "facebook/react"' .github/workflows/benchmark.yml
-          yq -i '(.jobs.*.steps.[] | select(.uses == "actions/checkout@v4").with.ref) = "main"' .github/workflows/benchmark.yml
+          yq -P -i '(.jobs.*.steps.[] | select(.uses == "actions/checkout@v4").with.repository) = "facebook/react"' .github/workflows/benchmark.yml
+          yq -P -i '(.jobs.*.steps.[] | select(.uses == "actions/checkout@v4").with.ref) = "main"' .github/workflows/benchmark.yml
 
       - name: Cleanup temp files
         run: rm -rf temp-react
