@@ -23,6 +23,7 @@ rm -rf temp-react
 # Configure git and commit
 git config --local user.email "$1"
 git config --local user.name "$2"
+git remote set-url origin https://$GHA_BENCHMARK@github.com/devzero-inc/gha-benchmark-react.git
 git add .github/workflows/benchmark.yml
 git commit -m "Setup React runtime tests workflow" || echo "No changes to commit"
 git push origin main
