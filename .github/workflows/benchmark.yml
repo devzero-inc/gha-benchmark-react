@@ -1,8 +1,11 @@
 name: (Runtime) Build and Test
 on:
-  workflow_dispatch: {}
-  schedule:
-    - cron: 15 */12 * * *
+  push:
+    branches:
+      - main
+  pull_request:
+    paths-ignore:
+      - compiler/**
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
@@ -51,14 +54,14 @@ jobs:
           repository: facebook/react
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: .nvmrc
           cache: yarn
           cache-dependency-path: yarn.lock
       - name: Restore cached node_modules
         uses: actions/cache@v4
         id: node_modules
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Ensure clean build directory
         run: rm -rf build
@@ -75,14 +78,14 @@ jobs:
           repository: facebook/react
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: .nvmrc
           cache: yarn
           cache-dependency-path: yarn.lock
       - name: Restore cached node_modules
         uses: actions/cache@v4
         id: node_modules
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Ensure clean build directory
         run: rm -rf build
@@ -106,14 +109,14 @@ jobs:
           repository: facebook/react
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: .nvmrc
           cache: yarn
           cache-dependency-path: yarn.lock
       - name: Restore cached node_modules
         uses: actions/cache@v4
         id: node_modules
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Ensure clean build directory
         run: rm -rf build
@@ -131,25 +134,25 @@ jobs:
     strategy:
       matrix:
         params:
-          - "-r=stable --env=development"
-          - "-r=stable --env=production"
-          - "-r=experimental --env=development"
-          - "-r=experimental --env=production"
-          - "-r=www-classic --env=development --variant=false"
-          - "-r=www-classic --env=production --variant=false"
-          - "-r=www-classic --env=development --variant=true"
-          - "-r=www-classic --env=production --variant=true"
-          - "-r=www-modern --env=development --variant=false"
-          - "-r=www-modern --env=production --variant=false"
-          - "-r=www-modern --env=development --variant=true"
-          - "-r=www-modern --env=production --variant=true"
-          - "-r=xplat --env=development --variant=false"
-          - "-r=xplat --env=development --variant=true"
-          - "-r=xplat --env=production --variant=false"
-          - "-r=xplat --env=production --variant=true"
+          - -r=stable --env=development
+          - -r=stable --env=production
+          - -r=experimental --env=development
+          - -r=experimental --env=production
+          - -r=www-classic --env=development --variant=false
+          - -r=www-classic --env=production --variant=false
+          - -r=www-classic --env=development --variant=true
+          - -r=www-classic --env=production --variant=true
+          - -r=www-modern --env=development --variant=false
+          - -r=www-modern --env=production --variant=false
+          - -r=www-modern --env=development --variant=true
+          - -r=www-modern --env=production --variant=true
+          - -r=xplat --env=development --variant=false
+          - -r=xplat --env=development --variant=true
+          - -r=xplat --env=production --variant=false
+          - -r=xplat --env=production --variant=true
           # TODO: Test more persistent configurations?
-          - "-r=stable --env=development --persistent"
-          - "-r=experimental --env=development --persistent"
+          - -r=stable --env=development --persistent
+          - -r=experimental --env=development --persistent
         shard:
           - 1/5
           - 2/5
@@ -167,14 +170,14 @@ jobs:
           repository: facebook/react
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: .nvmrc
           cache: yarn
           cache-dependency-path: yarn.lock
       - name: Restore cached node_modules
         uses: actions/cache@v4
         id: node_modules
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Ensure clean build directory
         run: rm -rf build
@@ -187,8 +190,30 @@ jobs:
     strategy:
       matrix:
         # yml is dumb. update the --total arg to yarn build if you change the number of workers
-        worker_id: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
-        release_channel: [stable, experimental]
+        worker_id:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          - 7
+          - 8
+          - 9
+          - 10
+          - 11
+          - 12
+          - 13
+          - 14
+          - 15
+          - 16
+          - 17
+          - 18
+          - 19
+        release_channel:
+          - stable
+          - experimental
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
@@ -199,7 +224,7 @@ jobs:
           repository: facebook/react
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: .nvmrc
           cache: yarn
           cache-dependency-path: yarn.lock
       - uses: actions/setup-java@v4
@@ -210,7 +235,7 @@ jobs:
         uses: actions/cache@v4
         id: node_modules
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Ensure clean build directory
         run: rm -rf build
@@ -234,13 +259,16 @@ jobs:
     needs: build_and_lint
     strategy:
       matrix:
-        test_params: [
+        test_params:
           # Intentionally passing these as strings instead of creating a
           # separate parameter per CLI argument, since it's easier to
           # control/see which combinations we want to run.
-          -r=stable --env=development, -r=stable --env=production, -r=experimental --env=development, -r=experimental --env=production,
+          - -r=stable --env=development
+          - -r=stable --env=production
+          - -r=experimental --env=development
+          - -r=experimental --env=production
           # Dev Tools
-          --project=devtools -r=experimental,
+          - --project=devtools -r=experimental
           # TODO: Update test config to support www build tests
           # - "-r=www-classic --env=development --variant=false"
           # - "-r=www-classic --env=production --variant=false"
@@ -250,7 +278,6 @@ jobs:
           # - "-r=www-modern --env=production --variant=false"
           # - "-r=www-modern --env=development --variant=true"
           # - "-r=www-modern --env=production --variant=true"
-        ]
         # TODO: Update test config to support xplat build tests
         # - "-r=xplat --env=development --variant=false"
         # - "-r=xplat --env=development --variant=true"
@@ -274,14 +301,14 @@ jobs:
           repository: facebook/react
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: .nvmrc
           cache: yarn
           cache-dependency-path: yarn.lock
       - name: Restore cached node_modules
         uses: actions/cache@v4
         id: node_modules
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Ensure clean build directory
         run: rm -rf build
@@ -306,14 +333,14 @@ jobs:
           repository: facebook/react
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: .nvmrc
           cache: yarn
           cache-dependency-path: yarn.lock
       - name: Restore cached node_modules
         uses: actions/cache@v4
         id: node_modules
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Ensure clean build directory
         run: rm -rf build
@@ -358,14 +385,14 @@ jobs:
           repository: facebook/react
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: .nvmrc
           cache: yarn
           cache-dependency-path: yarn.lock
       - name: Restore cached node_modules
         uses: actions/cache@v4
         id: node_modules
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Ensure clean build directory
         run: rm -rf build
@@ -398,14 +425,14 @@ jobs:
           repository: facebook/react
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: .nvmrc
           cache: yarn
           cache-dependency-path: yarn.lock
       - name: Restore cached node_modules
         uses: actions/cache@v4
         id: node_modules
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Ensure clean build directory
         run: rm -rf build
@@ -435,14 +462,14 @@ jobs:
           repository: facebook/react
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: .nvmrc
           cache: yarn
           cache-dependency-path: yarn.lock
       - name: Restore cached node_modules
         uses: actions/cache@v4
         id: node_modules
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: fixtures_dom-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Ensure clean build directory
         run: rm -rf build
@@ -481,7 +508,7 @@ jobs:
           repository: facebook/react
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: .nvmrc
           cache: yarn
           cache-dependency-path: yarn.lock
       # Fixture copies some built packages from the workroot after install.
@@ -491,7 +518,7 @@ jobs:
         uses: actions/cache@v4
         id: node_modules
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: fixtures_flight-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Ensure clean build directory
         run: rm -rf build
@@ -549,14 +576,14 @@ jobs:
           repository: facebook/react
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: .nvmrc
           cache: yarn
           cache-dependency-path: yarn.lock
       - name: Restore cached node_modules
         uses: actions/cache@v4
         id: node_modules
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Ensure clean build directory
         run: rm -rf build
@@ -604,14 +631,14 @@ jobs:
           repository: facebook/react
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: .nvmrc
           cache: yarn
           cache-dependency-path: yarn.lock
       - name: Restore cached node_modules
         uses: actions/cache@v4
         id: node_modules
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Ensure clean build directory
         run: rm -rf build
@@ -645,14 +672,14 @@ jobs:
           repository: facebook/react
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: .nvmrc
           cache: yarn
           cache-dependency-path: yarn.lock
       - name: Restore cached node_modules
         uses: actions/cache@v4
         id: node_modules
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: ${{ runner.arch }}-${{ runner.os }}-modules-${{ hashFiles('yarn.lock', 'scripts/release/yarn.lock') }}
       - name: Ensure clean build directory
         run: rm -rf build
@@ -684,7 +711,9 @@ jobs:
           - devzero-ubuntu-24.04
   sizebot:
     name: Run sizebot
-    needs: [build_and_lint, download_base_build_for_sizebot]
+    needs:
+      - build_and_lint
+      - download_base_build_for_sizebot
     runs-on: ""
     steps:
       - uses: actions/checkout@v4
@@ -693,14 +722,14 @@ jobs:
           repository: facebook/react
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: .nvmrc
           cache: yarn
           cache-dependency-path: yarn.lock
       - name: Restore cached node_modules
         uses: actions/cache@v4
         id: node_modules
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Ensure clean build directory
         run: rm -rf build
