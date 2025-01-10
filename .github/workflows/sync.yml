@@ -24,39 +24,8 @@ jobs:
             sudo chmod a+x /usr/local/bin/yq
           fi
 
-      - name: Clone React repo
-        run: |
-          git clone https://github.com/facebook/react.git temp-react --depth=1
-          
-      - name: Copy workflow file
-        run: |
-          mkdir -p .github/workflows/
-          cp temp-react/.github/workflows/runtime_build_and_test.yml .github/workflows/benchmark.yml
-
-      - name: Modify workflow file with yq
-        run: |
-          # Add runner matrix to all jobs that don't already have a matrix
-          yq -P -i '(.jobs.* | select(.strategy == null)).strategy.matrix.runner = ["ubuntu-24.04", "devzero-ubuntu-24.04"]' .github/workflows/benchmark.yml
-          
-          # Add runner to existing matrices
-          yq -P -i '(.jobs.* | select(.strategy != null)).strategy.matrix.runner = ["ubuntu-24.04", "devzero-ubuntu-24.04"]' .github/workflows/benchmark.yml
-          
-          # Set runs-on to use matrix runner
-          yq -P -i '.jobs.*.runs-on = "${{ matrix.runner }}"' .github/workflows/benchmark.yml
-          
-          # Add repository field to all checkout actions
-          yq -P -i '(.jobs.*.steps.[] | select(.uses == "actions/checkout@v4").with.repository) = "facebook/react"' .github/workflows/benchmark.yml
-          yq -P -i '(.jobs.*.steps.[] | select(.uses == "actions/checkout@v4").with.ref) = "main"' .github/workflows/benchmark.yml
-
-      - name: Cleanup temp files
-        run: rm -rf temp-react
-
-      - name: Commit changes
+      - name: Run sync script
         env:
           GHA_BENCHMARK: ${{ secrets.GHA_BENCHMARK }}
         run: |
-          git config --local user.email "dray92@uw.edu"
-          git config --local user.name "debot"
-          git add .github/workflows/benchmark.yml
-          git commit -m "Setup React runtime tests workflow" || echo "No changes to commit"
-          git push origin main
+          ./.github/scripts/sync-react-workflow.sh "dray92@uw.edu" "debot"

@@ -1,11 +1,8 @@
 name: (Runtime) Build and Test
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    paths-ignore:
-      - compiler/**
+  workflow_dispatch: {}
+  schedule:
+    - cron: 15 */12 * * *
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
@@ -17,7 +14,7 @@ jobs:
   # ----- FLOW -----
   discover_flow_inline_configs:
     name: Discover flow inline configs
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     outputs:
       matrix: ${{ steps.set-matrix.outputs.result }}
     steps:
@@ -39,7 +36,7 @@ jobs:
   flow:
     name: Flow check ${{ matrix.flow_inline_config_shortname }}
     needs: discover_flow_inline_configs
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     continue-on-error: true
     strategy:
       matrix:
@@ -70,7 +67,7 @@ jobs:
   # ----- FIZZ -----
   check_generated_fizz_runtime:
     name: Confirm generated inline Fizz runtime is up to date
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -101,7 +98,7 @@ jobs:
   # ----- FEATURE FLAGS -----
   flags:
     name: Check flags
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -130,7 +127,7 @@ jobs:
   # ----- TESTS -----
   test:
     name: yarn test ${{ matrix.params }} (Shard ${{ matrix.shard }})
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
         params:
@@ -186,7 +183,7 @@ jobs:
   # ----- BUILD -----
   build_and_lint:
     name: yarn build and lint
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
         # yml is dumb. update the --total arg to yarn build if you change the number of workers
@@ -293,7 +290,7 @@ jobs:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
     continue-on-error: true
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -325,7 +322,7 @@ jobs:
   process_artifacts_combined:
     name: Process artifacts combined
     needs: build_and_lint
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -377,7 +374,7 @@ jobs:
   check_error_codes:
     name: Search build artifacts for unminified errors
     needs: build_and_lint
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -417,7 +414,7 @@ jobs:
   check_release_dependencies:
     name: Check release dependencies
     needs: build_and_lint
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -454,7 +451,7 @@ jobs:
   RELEASE_CHANNEL_stable_yarn_test_dom_fixtures:
     name: Check fixtures DOM (stable)
     needs: build_and_lint
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -500,7 +497,7 @@ jobs:
   run_fixtures_flight_tests:
     name: Run fixtures Flight tests
     needs: build_and_lint
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -568,7 +565,7 @@ jobs:
   build_devtools_and_process_artifacts:
     name: Build DevTools and process artifacts
     needs: build_and_lint
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -623,7 +620,7 @@ jobs:
   run_devtools_e2e_tests:
     name: Run DevTools e2e tests
     needs: build_devtools_and_process_artifacts
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -664,7 +661,7 @@ jobs:
   download_base_build_for_sizebot:
     if: ${{ github.event_name == 'pull_request' && github.ref_name != 'main' }}
     name: Download base build for sizebot
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -714,7 +711,7 @@ jobs:
     needs:
       - build_and_lint
       - download_base_build_for_sizebot
-    runs-on: ""
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
