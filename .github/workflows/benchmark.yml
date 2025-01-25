@@ -33,6 +33,7 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
   flow:
     name: Flow check ${{ matrix.flow_inline_config_shortname }}
     needs: discover_flow_inline_configs
@@ -44,6 +45,7 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
     steps:
       - uses: actions/checkout@v4
         with:
@@ -95,6 +97,7 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
   # ----- FEATURE FLAGS -----
   flags:
     name: Check flags
@@ -124,6 +127,7 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
   # ----- TESTS -----
   test:
     name: yarn test ${{ matrix.params }} (Shard ${{ matrix.shard }})
@@ -159,6 +163,7 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -214,6 +219,7 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
     steps:
       - uses: actions/checkout@v4
         with:
@@ -289,6 +295,7 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
     continue-on-error: true
     runs-on: ${{ matrix.runner }}
     steps:
@@ -371,6 +378,7 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
   check_error_codes:
     name: Search build artifacts for unminified errors
     needs: build_and_lint
@@ -411,6 +419,7 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
   check_release_dependencies:
     name: Check release dependencies
     needs: build_and_lint
@@ -448,6 +457,7 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
   RELEASE_CHANNEL_stable_yarn_test_dom_fixtures:
     name: Check fixtures DOM (stable)
     needs: build_and_lint
@@ -492,6 +502,7 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
   # ----- FLIGHT -----
   run_fixtures_flight_tests:
     name: Run fixtures Flight tests
@@ -560,6 +571,7 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
   # ----- DEVTOOLS -----
   build_devtools_and_process_artifacts:
     name: Build DevTools and process artifacts
@@ -616,6 +628,7 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
   run_devtools_e2e_tests:
     name: Run DevTools e2e tests
     needs: build_devtools_and_process_artifacts
@@ -656,6 +669,7 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
   # ----- SIZEBOT -----
   download_base_build_for_sizebot:
     if: ${{ github.event_name == 'pull_request' && github.ref_name != 'main' }}
@@ -705,6 +719,7 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
   sizebot:
     name: Run sizebot
     needs:
@@ -761,3 +776,4 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
+          - self-hosted-vm
