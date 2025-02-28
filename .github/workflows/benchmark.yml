@@ -37,8 +37,8 @@ jobs:
     name: Flow check ${{ matrix.flow_inline_config_shortname }}
     needs: discover_flow_inline_configs
     runs-on: ${{ matrix.runner }}
-    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
         flow_inline_config_shortname: ${{ fromJSON(needs.discover_flow_inline_configs.outputs.matrix) }}
         runner:
@@ -129,6 +129,7 @@ jobs:
     name: yarn test ${{ matrix.params }} (Shard ${{ matrix.shard }})
     runs-on: ${{ matrix.runner }}
     strategy:
+      fail-fast: false
       matrix:
         params:
           - -r=stable --env=development
@@ -159,7 +160,6 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -185,6 +185,7 @@ jobs:
     name: yarn build and lint
     runs-on: ${{ matrix.runner }}
     strategy:
+      fail-fast: false
       matrix:
         # yml is dumb. update the --total arg to yarn build if you change the number of workers
         worker_id:
@@ -255,6 +256,7 @@ jobs:
     name: yarn test-build
     needs: build_and_lint
     strategy:
+      fail-fast: false
       matrix:
         test_params:
           # Intentionally passing these as strings instead of creating a
@@ -289,7 +291,6 @@ jobs:
         runner:
           - ubuntu-24.04
           - devzero-ubuntu-24.04
-    continue-on-error: true
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
@@ -564,6 +565,7 @@ jobs:
     needs: build_and_lint
     runs-on: ${{ matrix.runner }}
     strategy:
+      fail-fast: false
       matrix:
         browser:
           - chrome
